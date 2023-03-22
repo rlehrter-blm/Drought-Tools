@@ -24,7 +24,7 @@ while current_date <= end_date:
 #Convert list to numeric
 date_list = [eval(i) for i in date_list]
     
-######Calculate dates 90 and 180 days ago
+######Calculate dates 90 and 365 days ago
 # Get today's date
 today = datetime.date.today()
 
@@ -41,32 +41,31 @@ days_ago_90 = today - delta
 # Format the date as YYYYMMDD
 days90 = int(days_ago_90.strftime('%Y%m%d'))
 
-# Calculate the date 180 days ago
-delta = datetime.timedelta(days=180)
-days_ago_180 = today - delta
+# Calculate the date 365 days ago
+delta = datetime.timedelta(days=365)
+days_ago_365 = today - delta
 
 # Format the date as YYYYMMDD
-days180 = int(days_ago_180.strftime('%Y%m%d'))
+days365 = int(days_ago_365.strftime('%Y%m%d'))
 
 
 ########## Calculate closest date to 90 and 180 days ago
     
 def closest(lst, K):
-     
     return lst[min(range(len(lst)), key = lambda i: abs(lst[i]-K))]
      
 #### Driver code
 print("90 days ago was:", days90)
 data90 = closest(date_list, days90)
 print("Closest data to 90 days ago is:", data90)
-print("180 days ago was:", days180)
-data180 = closest(date_list, days180)
-print("Closest data to 180 days ago is:", data180)
+print("365 days ago was:", days365)
+data365 = closest(date_list, days365)
+print("Closest data to 365 days ago is:", data365)
 
 #Create url variables
 url = 'https://droughtmonitor.unl.edu/data/shapefiles_m/USDM_current_M.zip'
 url2 = url.replace('current', str(data90))
-url3 = url.replace('current', str(data180))
+url3 = url.replace('current', str(data365))
 
 ########## Download the current data from the URL
 
@@ -120,9 +119,9 @@ if arcpy.Exists(shp_path):
     arcpy.management.FeatureClassToFeatureClass(shp_path, gdb_path, 'USDM_3month')
 
     
-# Pull data from six months ago into ArcGIS
+# Pull data from 1 year ago into ArcGIS
 response3 = requests.get(url3)    
-filename3 = str('USDM_'+str(data180)+'_M.zip')
+filename3 = str('USDM_'+str(data365)+'_M.zip')
 
 with open(filename3, 'wb') as f:
     f.write(response3.content)
@@ -133,4 +132,4 @@ zipfile.ZipFile(filename3).extractall('.')
 # Import the shapefile into the geodatabase
 shp_path = str('./'+filename3+'/dm_export.shp')
 if arcpy.Exists(shp_path):
-    arcpy.management.FeatureClassToFeatureClass(shp_path, gdb_path, 'USDM_6month')
+    arcpy.management.FeatureClassToFeatureClass(shp_path, gdb_path, 'USDM_1year')
